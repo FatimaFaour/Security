@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  target:
+    image: nginx:1.27-alpine
+    container_name: nsml_target
+    networks:
+      dmz:
+        ipv4_address: 172.20.0.10
+    volumes:
+      - ./target/html:/usr/share/nginx/html:ro
+      - ./data/target:/var/log/nginx
+
+  client:
+    build:
+      context: ./client
+    container_name: nsml_client
+    networks:
+      lan:
+        ipv4_address: 172.21.0.10
+    depends_on:
+      - firewall
+    volumes:
+      - ./data/client:/var/log/client
+
+  firewall:
+    build:
+      context: ./firewall
+    container_name: nsml_firewall
+    networks:
+      lan:
+        ipv4_address: 172.21.0.1
+      dmz:
+        ipv4_address: 172.20.0.1
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./data/firewall:/var/log/firewall
+    depends_on:
+      - target
+
+  snort:
+    build:
+      context: ./snort
+    container_name: nsml_snort
+    networks:
+      dmz:
+        ipv4_address: 172.20.0.20
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: ["snort", "-i", "eth0", "-c", "/etc/snort/snort.conf", "-A", "fast", "-l", "/var/log/snort"]
+    volumes:
+      - ./snort/snort.conf:/etc/snort/snort.conf:ro
+      - ./snort/local.rules:/etc/snort/rules/local.rules:ro
+      - ./data/snort:/var/log/snort
+    depends_on:
+      - firewall
+
+networks:
+  lan:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
+  dmz:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
