@@ -1,7 +1,7 @@
-FROM debian:bookworm-slim
+FROM ubuntu:22.04
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends snort ca-certificates \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends snort ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /var/log/snort /etc/snort/rules
