@@ -1,12 +1,10 @@
-version: "3.9"
-
 services:
   target:
     image: nginx:1.27-alpine
     container_name: nsml_target
     networks:
       dmz:
-        ipv4_address: 172.20.0.10
+        ipv4_address: 172.31.0.10
     volumes:
       - ./target/html:/usr/share/nginx/html:ro
       - ./data/target:/var/log/nginx
@@ -17,7 +15,7 @@ services:
     container_name: nsml_client
     networks:
       lan:
-        ipv4_address: 172.21.0.10
+        ipv4_address: 172.30.0.10
     depends_on:
       - firewall
     volumes:
@@ -29,9 +27,9 @@ services:
     container_name: nsml_firewall
     networks:
       lan:
-        ipv4_address: 172.21.0.1
+        ipv4_address: 172.30.0.1
       dmz:
-        ipv4_address: 172.20.0.1
+        ipv4_address: 172.31.0.1
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -47,7 +45,7 @@ services:
     container_name: nsml_snort
     networks:
       dmz:
-        ipv4_address: 172.20.0.20
+        ipv4_address: 172.31.0.20
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -101,7 +99,6 @@ services:
     image: docker.elastic.co/beats/filebeat:8.15.2
     container_name: nsml_filebeat
     user: root
-    command: ["filebeat", "-e"]
     volumes:
       - ./observability/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - ./data/snort:/var/log/snort:ro
@@ -113,18 +110,18 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
-
+    command: ["filebeat", "-e", "-strict.perms=false"]
 networks:
   lan:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.21.0.0/24
+        - subnet: 172.30.0.0/24
   dmz:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/24
+        - subnet: 172.31.0.0/24
 
   observability:
     driver: bridge
