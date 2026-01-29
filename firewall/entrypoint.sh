@@ -1,7 +1,9 @@
 #!/bin/sh
 set -eu
 
-sysctl -w net.ipv4.ip_forward=1 >/dev/null
+if ! sysctl -w net.ipv4.ip_forward=1 >/dev/null 2>&1; then
+  echo "warning: unable to set net.ipv4.ip_forward (insufficient privileges)" >&2
+fi
 
 iptables-restore < /etc/iptables/rules.v4
 

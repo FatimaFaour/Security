@@ -111,17 +111,21 @@ services:
       elasticsearch:
         condition: service_healthy
     command: ["filebeat", "-e", "-strict.perms=false"]
+
 networks:
   lan:
     driver: bridge
     ipam:
       config:
         - subnet: 172.30.0.0/24
+          gateway: 172.30.0.254
   dmz:
     driver: bridge
     ipam:
       config:
         - subnet: 172.31.0.0/24
+          gateway: 172.31.0.254
+
 
   observability:
     driver: bridge
