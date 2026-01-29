@@ -4,7 +4,7 @@ services:
     container_name: nsml_target
     networks:
       dmz:
-        ipv4_address: 172.31.0.10
+        ipv4_address: 10.10.20.10
     volumes:
       - ./target/html:/usr/share/nginx/html:ro
       - ./data/target:/var/log/nginx
@@ -15,7 +15,7 @@ services:
     container_name: nsml_client
     networks:
       lan:
-        ipv4_address: 172.30.0.10
+        ipv4_address: 10.10.10.10
     depends_on:
       - firewall
     volumes:
@@ -27,9 +27,9 @@ services:
     container_name: nsml_firewall
     networks:
       lan:
-        ipv4_address: 172.30.0.1
+        ipv4_address: 10.10.10.1
       dmz:
-        ipv4_address: 172.31.0.1
+        ipv4_address: 10.10.20.1
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -45,7 +45,7 @@ services:
     container_name: nsml_snort
     networks:
       dmz:
-        ipv4_address: 172.31.0.20
+        ipv4_address: 10.10.20.20
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -116,12 +116,12 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.30.0.0/24
+        - subnet: 10.10.10.0/24
   dmz:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.31.0.0/24
+        - subnet: 10.10.20.0/24
 
   observability:
     driver: bridge

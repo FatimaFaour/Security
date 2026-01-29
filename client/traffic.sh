@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-TARGET_URL="http://172.20.0.10/"
+TARGET_URL="http://10.10.20.10/"
 LOG_FILE="/var/log/client/traffic.log"
 
 while true; do
